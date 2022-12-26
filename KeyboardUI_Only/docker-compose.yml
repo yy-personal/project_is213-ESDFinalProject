@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+ 
+  ###################################
+  # Order: The Order microservice
+  ###################################
+  order:
+    build:
+      context: ./
+      dockerfile: order.Dockerfile
+    image: darrenth1/order:project
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/order
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5012:5012"
+  #######################################################
+  # Shipping Record: The Shipping Record microservice
+  #######################################################
+  orderRefund:
+    build:
+      context: ./
+      dockerfile: orderrefund.Dockerfile
+    image: darrenth1/orderrefund:project
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/orderRefund
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5014:5014"
+  ###############################################
+  # Place Order: The Place Order microservice
+  ###############################################
+  refund_order:
+    build:
+      context: ./
+      dockerfile: refund_order.Dockerfile
+    image: darrenth1/refund_order:project
+    restart: always
+    depends_on:
+      - order
+      - orderRefund
+      - inventory
+    environment:
+      order_URL: http://order:5012/order
+      shipping_record_URL: http://orderRefund:5014/orderRefund
+      inventory_URL: http://inventory:5013/inventory
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5101:5101"
+
+  ##################################
+  # Book: The Book microservice
+  ##################################
+  inventory:
+    build:
+      context: ./
+      dockerfile: inventory.Dockerfile
+    image: darrenth1/inventory:project
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/keyboards
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5013:5013"

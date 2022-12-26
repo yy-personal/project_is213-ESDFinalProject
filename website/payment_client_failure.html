@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Checkout</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'
+        rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+        crossorigin='anonymous'>
+
+    <!-- Vue 3 -->
+    <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.js'></script>
+    <!-- Vue 3: production version, optimized for size and speed -->
+    <!-- <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.prod.js'></script> -->
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+
+    <!-- Paypal Script -->
+    <!-- Replace "test" with your own sandbox Business account app client ID -->
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+
+
+</head>
+
+<script>
+</script>
+
+<body>
+    <header class="mb-2 bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder" style="font-family:'Courier New', Courier, monospace ">\KeebsForUs\</h1>
+                <p class="lead fw-normal text-white-50 mb-0">Payment Failure</p>
+            </div>
+        </div>
+    </header>
+    <div id="app" class="container">
+        <h2 class="text-danger text-center mt-3">{{ message }}</h2>
+        <div class="row">
+            <div id="main" class="">
+                <table class="table table-bordered border-dark table-danger mt-3" v-if="hasOrders">
+                    <!-- <table class="table table-striped"> -->
+                    <thead>
+                        <tr>
+                            <th class="align-middle text-center">Order ID</th>
+                            <th class="align-middle text-center">Ordered Item</th>
+                            <th class="align-middle text-center">Price</th>
+                            <th class="align-middle text-center">Quantity</th>
+                            <th class="align-middle text-center">Image</th>
+                        </tr>
+                        <tr v-for="order in orders">
+                            <!-- <tr> -->
+                            <td class="align-middle text-center" v-if="order.order_id==order_id">{{ order.order_id }}</td>
+                            <td class="align-middle text-center" v-if="order.order_id==order_id"> <p v-for="item in order.order_item">{{item.item_name}}</p> </td>
+                            <td class="align-middle text-center" v-if="order.order_id==order_id"> <p v-for="item in order.order_item">{{item.price}}</p> </td>
+                            <td class="align-middle text-center" v-if="order.order_id==order_id"> <p v-for="item in order.order_item">{{item.quantity}}</p> </td>
+                            <td class="align-middle text-center" v-if="order.order_id==order_id"> <p v-for="item in order.order_item"><img v-bind:src="'./' + item.photo_url" class="img-thumbnail img-fluid w-50" alt="Responsive image"></p></td>
+                            <!-- </tr> -->
+                        </tr>
+                        <!-- <template v-for="order in orders">
+                            <template v-if="order.order_id==order_id">
+                                <tr>
+                                    {{order}}
+                                </tr>
+                            </template>
+                        </template> -->
+
+
+                        
+                        <tr>
+                            <td colspan="3">Total Price</td>
+                            <td>{{total}}</td>
+                            <td></td>
+                        </tr>
+
+                    </thead>
+                </table>
+            </div> <!-- main & col -->
+            <hr>
+
+            <div class="container">
+                <h2 class="text-success text-center mb-3">We recommend you</h2>
+                <!-- <div v-for="item in keyboards" class="card" style="width: 18rem;">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success" type="button">View</button>
+                            <button class="btn btn-success" type="button">Add To Cart</button>
+                        </div>
+                    
+                    </div>
+                </div> -->
+                <div class="row">
+                    <div v-for="item in keyboards"  class="col-sm-4">
+                        <div v-if="item.category==category">
+                            <div class="card">
+                                <div class="card-block">
+                                    <img class="card-img-top" v-bind:src="'./' + item.photo_url" alt="Card image cap">
+                                        <h4 class="card-title" style='text-align: center;'>{{item.itemName}}</h4>
+                                        <h6 class="card-subtitle text-muted" style='text-align: center;'>
+                                            \{{item.category}}\</h6>
+                                        <p class="card-text p-y-1" style='text-align: center;'>
+                                            ${{item.price}}
+                                        </p>
+                                        <div style="text-align:center" class='my-2'>
+                                            <button class="btn btn-primary">Add To
+                                                Cart</button>
+                                        </div>
+                                </div>
+                            </div>
+                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+        </div> <!-- row -->
+
+    </div> <!-- app: container -->
+
+
+    <script>
+    //   const get_all_URL = "http://localhost:5001/order/1";
+    // To use 5012 after darren update
+    // const get_all_URL = "http://localhost:5012/order";
+    const get_all_URL = "http://localhost:5012/order";
+    const get_all_inventory = "http://localhost:5013/inventory";
+
+
+
+      // const get_specific_order_URL = "http://localhost:5001/order/${order_number}";
+
+      const app = Vue.createApp({
+        computed: {
+                hasOrders: function () { //Originally hasBooks -> hasAccounts
+                    return this.orders.length > 0;
+                }
+            },
+            data() {
+                return {
+                    order_id: 1,
+                    "keyboards": [],
+                    "orders": [],
+                    "category": 'keyboard',
+                    message: "There is an issue with your payment, try getting our other products!",
+                    total: 0,
+                };
+            },
+            methods: {
+                getAllOrders () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_all_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.orders = data.data.orders;
+                                    // console.log(this.orders) 
+                                    for (i in this.orders){
+                                        // console.log(this.orders[i])
+                                        item_list = this.orders[i].order_item;
+                                        console.log(item_list)
+                                        for (j in item_list){
+                                            // if(item_list[j]){
+
+                                            // }
+                                            item = item_list[j]
+                                            
+                                            if(item.order_id == this.order_id){
+                                                price = item.price
+                                                quantity = item.quantity
+                                                // console.log(price)
+                                                // console.log(quantity)
+                                                
+                                                this.total += (price * quantity)
+                                            }
+                                            // console.log(item)
+
+                                        }
+                                }
+                                    console.log(this.total)
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+                            });
+
+                },
+                getAllKeyboards () { 
+                    const response =
+                        fetch(get_all_inventory)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.keyboards = data.data.keyboards;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                // getAllOrders () { //Originally getAllBooks
+                //     // on Vue instance created, load the book list
+                //     const response =
+                //         fetch(get_all_URL)
+                //             .then(response => response.json())
+                //             .then(data => {
+                //                 console.log(response);
+                //                 if (data.code === 404) {
+                //                     // no book in db
+                //                     this.message = data.message;
+                //                 } else {
+                //                     this.orders = data.data.orders;
+                //                 }
+                //             })
+                //             .catch(error => {
+                //                 // Errors when calling the service; such as network error, 
+                //                 // service offline, etc
+                //                 console.log(this.message + error);
+
+                //             });
+
+                // },
+                findOrder () {
+                    console.log(this.order_id);
+                    const response =
+                        fetch(`${get_all_URL}/${this.order_id}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    this.message = data.message;
+                                    console.log(this.message)
+                                    this.orders = [];
+                                } else {
+                                    this.orders = [data.data];
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+          },
+          created () {
+              // on Vue instance created, load the book list
+              this.getAllOrders();
+              this.getAllKeyboards();
+          }
+      });
+      const vm = app.mount('#app');
+  </script>
+    <!-- Bootstrap Javascript -->
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js'
+        integrity='sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM'
+        crossorigin='anonymous'></script>
+
+</body>
+
+</html>

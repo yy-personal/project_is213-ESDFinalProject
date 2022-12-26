@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Inventory</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'
+        rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+        crossorigin='anonymous'>
+
+    <!-- Vue 3 -->
+    <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.js'></script>
+    <!-- Vue 3: production version, optimized for size and speed -->
+    <!-- <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.prod.js'></script> -->
+    
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <header class="mb-2 bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder" style="font-family:'Courier New', Courier, monospace ">\KeebsForUs\</h1>
+                <p class="lead fw-normal text-white-50 mb-0">Inventory</p>
+            </div>
+        </div>
+    </header>
+    <div id="app" class="container">
+        <div class="row" v-show="hasKeyboards">
+            <div id="main" class="col">
+                Search by Item ID: <input v-model="itemID" placeholder="Item ID">
+                <button @click="findKeyboards()" type="button" class="my-1 btn btn-sm btn-primary mb-2">Search</button>
+                <br>
+                
+
+                <table class="table table-bordered border-dark table-success" v-if="hasKeyboards">
+                    <!-- <table class="table table-striped"> -->
+                    <thead>
+                        <tr>
+                            <th class="align-middle text-center">Order ID</th>
+                            <th class="align-middle text-center">Item Name</th>
+                            <th class="align-middle text-center">Category</th>
+                            <th class="align-middle text-center">Price</th>
+                            <th class="align-middle text-center">Quantity</th>
+                            <th class="align-middle text-center">Image</th>
+                        </tr>
+                        <tr v-for="each_keyboard in keyboards">
+                            <td class="align-middle text-center">{{ each_keyboard.itemID }}</td>
+                            <td class="align-middle text-center">{{ each_keyboard.itemName }}</td>
+                            <td v-if="each_keyboard.category=='keyboard'" class="align-middle text-center">{{ each_keyboard.category }}</td>
+                            <td v-else-if="each_keyboard.category=='switch'" class="align-middle text-center text-danger">{{ each_keyboard.category }}</td>
+                            <td v-else class="align-middle text-center text-info">{{ each_keyboard.category }}</td>
+                            <td class="align-middle text-center">${{ each_keyboard.price }}</td>
+                            <td class="align-middle text-center">{{ each_keyboard.quantity }}</td>
+                            <!-- <td><img v-bind:src="'./' + each_keyboard.photo_url"></td> -->
+                            <td class="align-middle text-center"><img v-bind:src="'./' + each_keyboard.photo_url" class="img-thumbnail img-fluid w-50" alt="Responsive image"></td>
+
+                            
+                        </tr>
+                    </thead>
+                </table>
+                <div class="text-danger" v-if="!hasKeyboards">{{ message }}</div>
+            </div> <!-- main & col -->
+            
+        </div> <!-- row -->
+    </div> <!-- app: container -->
+
+    <script>
+        const get_all_URL = "http://localhost:5013/inventory";
+
+        const app = Vue.createApp({
+            computed: {
+                hasKeyboards: function () {
+                    return this.keyboards.length > 0;
+                }
+            },
+            data() {
+                return {
+                    "keyboards": [],
+                    message: "There is a problem retrieving keyboards data, please try again later.",
+                };
+            },
+            methods: {
+                getAllKeyboards () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_all_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.keyboards = data.data.keyboards;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                findKeyboards () {
+                    console.log(this.itemID);
+                    const response =
+                        fetch(`${get_all_URL}/${this.itemID}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                    console.log(this.message)
+                                    this.keyboards = [];
+                                } else {
+                                    this.keyboards = [data.data];
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                }
+                
+            },
+            created () {
+                // on Vue instance created, load the book list
+                this.getAllKeyboards();
+            }
+        });
+        const vm = app.mount('#app');
+    </script>
+
+    <!-- Bootstrap Javascript -->
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js'
+        integrity='sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM'
+        crossorigin='anonymous'></script>
+
+</body>
+
+</html>

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Checkout</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'
+        rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+        crossorigin='anonymous'>
+
+    <!-- Vue 3 -->
+    <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.js'></script>
+    <!-- Vue 3: production version, optimized for size and speed -->
+    <!-- <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.prod.js'></script> -->
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+
+    <!-- Paypal Script -->
+    <!-- Replace "test" with your own sandbox Business account app client ID -->
+    <!-- <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+     -->
+
+
+</head>
+
+<script>
+</script>
+
+<body>
+    <header class="mb-2 bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <a href = 'homepage.html' style = 'text-decoration: none; color: white;'>
+                    <h1 class="display-4 fw-bolder" style="font-family:'Courier New', Courier, monospace ">\KeebsForUs\</h1>
+                </a>
+                <p class="lead fw-normal text-white-50 mb-0">Checkout</p>
+            </div>
+        </div>
+    </header>
+    <div id="app" class="container">
+        <div class="row">
+            <div id="main" class="">
+                <div class="text-danger" v-if="!hasKeyboards">{{ message }}</div>
+                <table class="table table-bordered border-dark table-success" v-if="hasKeyboards">
+                    <!-- <table class="table table-striped"> -->
+                    <thead>
+                        <tr>
+                            <th class="align-middle text-center">Item ID</th>
+                            <th class="align-middle text-center">Cart Item</th>
+                            <th class="align-middle text-center">Image</th> 
+                            <th class="align-middle text-center">Quantity</th>
+                            <th class="align-middle text-center">Price</th>
+                        </tr>
+
+                        <tr v-for="each in cart_items">
+                            <!-- <td class="align-middle text-center">{{ each_id }}</td> -->
+                            <template v-for="item in keyboards">
+                                <template v-if="item.itemID==each.itemID">
+                                    <td class="align-middle text-center">{{ item.itemID }}</td>
+                                    <td class="align-middle text-center">{{ item.itemName }}</td>
+                                    <td class="align-middle text-center"><img v-bind:src="'./' + item.photo_url" class="img-thumbnail img-fluid w-50" alt="Responsive image"></td>
+                                    <td class="align-middle text-center">{{ each.quantity }}</td>
+                                    <td class="align-middle text-center">${{ item.price }}</td>
+                                </template>
+                            </template>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">Total Price</td>
+                            <td></td>
+                            <td colspan = '2' style="font-weight:bold">${{total}}</td>
+                        </tr>
+
+                    </thead>
+                </table>
+            </div> <!-- main & col -->
+            <div class="col-4">
+                
+
+            </div>
+
+        </div> <!-- row -->
+
+    </div> <!-- app: container -->
+
+    <!-- <div id="paypal-button-container" class="d-flex justify-content-center"></div> -->
+    <div class="d-flex justify-content-center">
+
+        <a href='payment/public/checkout.html' class="btn btn-primary " type="submit">Pay Now </a>
+    </div>
+    
+
+    <
+    <script>
+    //   const get_all_URL = "http://localhost:5001/order/1";
+
+    // To use 5012 after darren update
+    // const get_all_URL = "http://localhost:5012/order";
+    const get_all_URL = "http://localhost:5012/order";
+    const get_cart_url = "http://localhost:5014/cart";
+    const get_all_inventory = "http://localhost:5013/inventory";
+
+
+      // const get_specific_order_URL = "http://localhost:5001/order/${order_number}";
+
+      const app = Vue.createApp({
+        computed: {
+                hasKeyboards: function () { //Originally hasBooks -> hasAccounts
+                    return this.keyboards.length > 0;
+                }
+            },
+            data() {
+                return {
+                    order_id: 1,
+                    "orders": [],
+                    "keyboards": [],
+                    message: "There is a problem retrieving inventory data, please try again later.",
+                    total: 0,
+                    cart_items: []
+                };
+            },
+            methods: {
+                getAllInventory () { 
+                    const response =
+                        fetch(get_all_inventory)
+                            .then(response => response.json())
+                            .then(data => {
+                                //console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.keyboards = data.data.keyboards;
+                                    console.log(this.keyboards);
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+                                
+                            });
+
+                },
+                
+                getAllCart () { 
+                    let data = sessionStorage.getItem('cart');
+                    data_list = JSON.parse(data)
+                    this.cart_items = data_list
+                    console.log(this.cart_items)
+                    for (each_item of this.cart_items){
+                        this.total += (each_item.price * each_item.quantity)
+                    }
+                },
+                findOrder () {
+                    console.log(this.order_id);
+                    const response =
+                        fetch(`${get_all_URL}/${this.order_id}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    this.message = data.message;
+                                    console.log(this.message)
+                                    this.orders = [];
+                                } else {
+                                    this.orders = [data.data];
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+
+                getAllOrders () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_all_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.orders = data.data.orders;
+                                    // console.log(this.orders) 
+                                    for (i in this.orders){
+                                        // console.log(this.orders[i])
+                                        item_list = this.orders[i].order_item;
+                                        console.log(item_list)
+                                        for (j in item_list){
+                                            // if(item_list[j]){
+
+                                            // }
+                                            item = item_list[j]
+                                            
+                                            if(item.order_id == this.order_id){
+                                                price = item.price
+                                                quantity = item.quantity
+                                                // console.log(price)
+                                                // console.log(quantity)
+                                                
+                                                this.total += (price * quantity)
+                                            }
+                                            // console.log(item)
+
+                                        }
+                                 }
+                                 console.log(this.total)
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+                            });
+
+                },
+                
+
+                createOrder(cart){
+                //this function will trigger order microservice to get the data from the cart item and generate new order creation 
+
+                // take the item from the cart and convert them to an order 
+                // generate new  order id, item name , amount data and append it to the order
+
+                
+                    fetch(`${get}`, {
+                    method: "POST" , 
+                    headers:{
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        // i need the data structure of cart so then can adjust accordingly
+                        order_id : 437457348548,
+                        customer_id :73648367, 
+                        phone : 78343744,
+                        address : 'BLK 123 HOLLAND ROAD 675435 #22-32',
+                        status : 'NEW',
+                        created : 2021/12/12,
+                        order_item :{ item_name :"ABDGD Keyboard", quantity :1 , price :123 , photo_url:'/images'}
+                    }),
+                    
+                    })
+                    .then(response => response.json())
+                    
+                    },
+
+                fulfilPayment(){
+                //this function will trigger payment microservice to get the data from the paypal api - payment id, amount, status, method
+                
+                // payment id, status, amount, currency, status == created 
+
+                // after successful payment using paypal api
+
+                // put teh status from created to completed
+                },
+
+                createShippingRecord(){
+                //this function will trigger shipping record microservice to get the data from the cart item and generate new shipping record
+
+                // after payment is successful, will trigger new shipping record creation
+                // customerID, address, phone, reqstatus = new 
+            
+                }, 
+
+                updateInventory(){
+                 //this function will trigger shipping record microservice to get the data from the cart item and update the inventory
+
+                //  item id, quantity -1
+    
+                }, 
+
+          },
+          created () {
+            this.getAllInventory();
+            this.getAllCart ();
+          }
+      });
+      const vm = app.mount('#app');
+  </script>
+    <!-- Bootstrap Javascript -->
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js'
+        integrity='sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM'
+        crossorigin='anonymous'></script>
+
+</body>
+
+</html>

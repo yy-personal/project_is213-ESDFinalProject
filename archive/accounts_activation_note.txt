@@ -1,0 +1,25 @@
+1. Build image in docker
+docker build -t noxnyctores/accounts:1.0 ./
+docker build -f order.Dockerfile -t noxnyctores/accounts:1.0 ./
+
+
+1.1. Check docker images
+docker images
+1.2. Remove docker images
+docker rmi <img id>
+
+2. Run container, if  5011:5010, need to use http://127.0.0.1:5011/accounts or http://localhost:5011/accounts
+docker run -p 5020:5010 -e dbURL=mysql+mysqlconnector://is213@host.docker.internal:3306/esdproject_accounts noxnyctores/accounts:1.0
+
+2.1 List docker
+docker ps
+2.1.1 List all with offline ones
+docker ps -a
+2.2 Stop docker
+docker stop <containerid>
+2.3 Logs
+docker logs <containerid>
+2.3.1  real-time Logs
+docker logs -f <containerid> 
+2.4 remove docker
+docker rm <containerid> 

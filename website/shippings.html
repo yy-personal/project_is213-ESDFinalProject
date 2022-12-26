@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Shipping Records</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'
+        rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+        crossorigin='anonymous'>
+
+    <!-- Vue 3 -->
+    <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.js'></script>
+    <!-- Vue 3: production version, optimized for size and speed -->
+    <!-- <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.prod.js'></script> -->
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <header class="bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder" style="font-family:'Courier New', Courier, monospace ">\KeebsForUs\</h1>
+                <p class="lead fw-normal text-white-50 mb-0">Shipping Records</p>
+            </div>
+        </div>
+    </header>
+    <div id="app" class="container">
+        <div class="row" v-show="!orderPlaced">
+            <div id="main" class="col">
+                Search by Record ID: <input class="mb-2" v-model="recordID" placeholder="Record ID">
+                <button @click="findShipping()" type="button" class="my-1 btn btn-sm btn-primary mb-2">Search</button>
+                <br>
+                <!-- <div class="d-grid gap-2 d-md-block container">
+                    <button @click="getAllRecord()"  class="btn btn-primary" type="button" >Show All</button>
+                    <button @click="getAcceptedRecord()" class="btn btn-primary" type="button">Accepted Record</button>
+                    <button @click="getFailedRecord()" class="btn btn-primary" type="button">Failed Record</button>
+                    <button @click="getCompletedRecord()" class="btn btn-primary" type="button">Completed Record</button>
+                    <button @click="getUnacceptedRecord()" class="btn btn-primary" type="button">Unaccepted Record</button>
+                </div> -->
+                
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                    <label @click="getAllRecord()" class="btn btn-outline-primary" for="btnradio1">Show All</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                    <label @click="getAcceptedRecord()" class="btn btn-outline-primary" for="btnradio2">Accepted Record</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                    <label @click="getFailedRecord()" class="btn btn-outline-primary" for="btnradio3">Failed Record</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off">
+                    <label @click="getCompletedRecord()" class="btn btn-outline-primary" for="btnradio4">Completed Record</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off">
+                    <label @click="getUnacceptedRecord()" class="btn btn-outline-primary" for="btnradio5">Unaccepted Record</label>
+                </div>
+                <br>
+                <br>
+                <table class="table table-bordered border-dark table-success" v-if="hasShippings">
+                    <!-- <table class="table table-striped"> -->
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Customer ID</th>
+                            <th>Address</th>
+                            <th>Phone No.</th>
+                            <th>Order ID</th>
+                            <th>Status</th>
+                            <th>Edit Order</th>
+
+                        </tr>
+                        <tr v-for="each_shipping_record in shippingRecords">
+                            <td class="align-middle">{{ each_shipping_record.recordID }}</td>
+                            <td class="align-middle">{{ each_shipping_record.customerID }}</td>
+                            <td class="align-middle">{{ each_shipping_record.address }}</td>
+                            <td class="align-middle">{{ each_shipping_record.phone }}</td>
+                            <td class="align-middle">{{ each_shipping_record.orderID }}</td>
+                            <td class="align-middle">{{ each_shipping_record.reqStatus }}</td>
+                            <!-- <script>
+                                var value_to_pass = each_shipping_record.recordID;
+                            </script> -->
+                            <!-- <td><button  onclick='storeVar(each_shipping_record.recordID)' class="btn btn-primary" type="button" value='???'>{{each_shipping_record.recordID}}</button></td> -->
+                            <td>
+                                <div class="d-grid gap-2">
+                                    <button @click="getJsonDataAccepted (each_shipping_record)" type="button"
+                                    class="btn btn-primary">Accepted</button>
+                                    <!-- <button @click="updateRecordToStatus (each_shipping_record, 'unaccepted')" type="button"
+                                    class="btn btn-primary">Unaccepte</button> -->
+                                    <button @click="getJsonDataCompleted (each_shipping_record)" type="button"
+                                    class="btn btn-success">Completed</button>
+                                    <button @click="getJsonDataFailed (each_shipping_record)" type="button"
+                                    class="btn btn-danger">Failed</button>
+                                </div>
+                                <!-- <div class="d-grid gap-2">
+                                    <button @click="updateRecordToStatus (each_shipping_record, 'accepted')" type="button"
+                                    class="btn btn-primary">Accepted</button>
+                                    <button @click="updateRecordToStatus (each_shipping_record, 'completed')" type="button"
+                                    class="btn btn-success">Completed</button>
+                                    <button @click="updateRecordToStatus (each_shipping_record, 'failed')" type="button"
+                                    class="btn btn-danger">Failed</button>
+                                </div> -->
+
+                            </td>
+                            
+                            
+
+                            
+
+                        </tr>
+                        <p v-for>{{selected_delivery_to_pass}}</p>
+                                
+
+                    </thead>
+                </table>
+                <div class="text-danger" v-if="!hasShippings">{{ message }}</div>
+            </div> <!-- main & col -->
+            
+        </div> <!-- row -->
+    </div> <!-- app: container -->
+
+    <script>
+        const get_all_URL = "http://localhost:5010/shippingrecord";
+        const get_reqStatus_accepted_URL = "http://localhost:5010/shippingrecord/reqStatus/accepted";
+        const get_reqStatus_unaccepted_URL = "http://localhost:5010/shippingrecord/reqStatus/unaccepted";
+        const get_reqStatus_completed_URL = "http://localhost:5010/shippingrecord/reqStatus/completed";
+        const get_reqStatus_failed_URL = "http://localhost:5010/shippingrecord/reqStatus/failed";
+        var recordID_to_update = '';
+
+
+        const app = Vue.createApp({
+            computed: {
+                hasShippings: function () { //Originally hasBooks -> hasAccounts
+                    return this.shippingRecords.length > 0;
+                }
+            },
+            data() {
+                return {
+                    // recordID: "",
+                    shippingRecords: [],
+                    message: "There is a problem retrieving shipping record, please try again later.",
+                    // selected_delivery_to_pass: [],
+                };
+            },
+            methods: {
+                getAllRecord () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_all_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.shippingRecords = data.data.shippingRecords;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                getAcceptedRecord () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_reqStatus_accepted_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.shippingRecords = data.data.shippingRecords;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                getUnacceptedRecord () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_reqStatus_unaccepted_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.shippingRecords = data.data.shippingRecords;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                getCompletedRecord () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_reqStatus_completed_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.shippingRecords = data.data.shippingRecords;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                getFailedRecord () { //Originally getAllBooks
+                    // on Vue instance created, load the book list
+                    const response =
+                        fetch(get_reqStatus_failed_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    // no book in db
+                                    this.message = data.message;
+                                } else {
+                                    this.shippingRecords = data.data.shippingRecords;
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                findShipping () {
+                    console.log(this.recordID);
+                    const response =
+                        fetch(`${get_all_URL}/${this.recordID}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    this.message = data.message;
+                                    console.log(this.message)
+                                    this.shippingRecords = [];
+                                } else {
+                                    this.shippingRecords = [data.data];
+                                    console.log(this.shippingRecords)
+
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+    
+                //https://stackoverflow.com/questions/55443653/how-do-i-successfully-make-an-http-put-request-in-vue
+                // updateRecordToStatus (each_shipping_record, new_status){
+                //     console.log(each_shipping_record.recordID+ ' will be updated to ' + new_status);
+                //     // console.log(`/shippingrecord/{{each_shipping_record.recordID}}/{{new_status}}`);
+                //     console.log(`http://localhost:5010/shippingrecord/${each_shipping_record.recordID}/${new_status}`);
+
+                //     const response =
+                //         fetch(`http://localhost:5010/shippingrecord/${each_shipping_record.recordID}/${new_status}`, {
+                //             method: 'PUT',
+                //             headers: {
+                //                 'Content-Type': 'application/json'
+                //             },
+                //             body: JSON.stringify({
+                //                 // data you intend to send as JSON to the server
+                //             })
+                //             })
+                //             .then(response => response.json())
+                //             .then(data => {
+                //                 console.log(data);
+                //                 result = data.data;
+                //                 console.log(result);
+                //                 // 3 cases
+                //                 switch (data.code) {
+                //                     case 200:
+                //                         // this.getShippingJson();
+                //                         this.getAllRecord();
+                //                         break;
+                //                 }
+                //             })
+                // },
+
+                getJsonDataAccepted (each_shipping_record){
+                    console.log(each_shipping_record);
+                    const response =
+                        fetch(`http://localhost:5100/update_accepted`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                                body: JSON.stringify({
+                                    // data you intend to send as JSON to the server
+                                    
+                                        each_shipping_record
+                                    
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                                result = data.data;
+                                console.log(result);
+                                this.getAllRecord();
+                                switch (data.code) {
+                                    case 200:
+                                        this.getAllRecord();
+                                        break;
+                                }
+                            })
+                },
+                getJsonDataCompleted (each_shipping_record){
+                    console.log(each_shipping_record);
+                    const response =
+                        fetch(`http://localhost:5100/update_completed`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                                body: JSON.stringify({
+                                    // data you intend to send as JSON to the server
+                                    
+                                        each_shipping_record
+                                    
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                                result = data.data;
+                                console.log(result);
+                                this.getAllRecord();
+                                switch (data.code) {
+                                    case 200:
+                                        this.getAllRecord();
+                                        break;
+                                }
+                            })
+                },
+                getJsonDataFailed (each_shipping_record){
+                    console.log(each_shipping_record);
+                    const response =
+                        fetch(`http://localhost:5100/update_failed`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                                body: JSON.stringify({
+                                    // data you intend to send as JSON to the server
+                                    
+                                        each_shipping_record
+                                    
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                                result = data.data;
+                                console.log(result);
+                                this.getAllRecord();
+                                switch (data.code) {
+                                    case 200:
+                                        break;
+                                }
+                            })
+                },
+
+                // getShippingJson(){
+                //     console.log(this.recordID);
+                //     const response =
+                //         fetch(`${get_all_URL}/${this.recordID}`)
+                //             .then(response => response.json())
+                //             .then(data => {
+                //                 console.log(response);
+                //                 if (data.code === 404) {
+                //                     this.message = data.message;
+                //                     console.log(this.message)
+                //                     this.shippingRecords = [];
+                //                 } else {
+                //                     this.shippingRecords = [data.data];
+                //                     console.log(this.shippingRecords)
+
+                //                 }
+                //             })
+                //             .catch(error => {
+                //                 // Errors when calling the service; such as network error, 
+                //                 // service offline, etc
+                //                 console.log(this.message + error);
+
+                //             });
+
+                // },
+                // getAllRecord () { //Originally getAllBooks
+                //     // on Vue instance created, load the book list
+                //     const response =
+                //         fetch(get_all_URL)
+                //             .then(response => response.json())
+                //             .then(data => {
+                //                 console.log(response);
+                //                 if (data.code === 404) {
+                //                     // no book in db
+                //                     this.message = data.message;
+                //                 } else {
+                //                     this.shippingRecords = data.data.shippingRecords;
+                //                 }
+                //             })
+                //             .catch(error => {
+                //                 // Errors when calling the service; such as network error, 
+                //                 // service offline, etc
+                //                 console.log(this.message + error);
+
+                //             });
+
+                // },
+                // storeVar(el) {
+                //     var amount = el.getAttribute('value'); 
+                //     console.log(amount);
+                // },
+
+                 // getVal (each_shipping_record){
+                //     // this.one_shipping_record = each_shipping_record;
+                //     console.log(each_shipping_record)
+                // },
+                
+           
+            },
+            created () {
+                // on Vue instance created, load the book list
+                this.getAllRecord();
+            }
+        });
+        const vm = app.mount('#app');
+    </script>
+
+    <!-- Bootstrap Javascript -->
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js'
+        integrity='sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM'
+        crossorigin='anonymous'></script>
+
+</body>
+
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Homepage</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+        </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+        </script>
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css' rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC' crossorigin='anonymous'>
+
+    <!-- Vue 3 -->
+    <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.js'></script>
+    <!-- Vue 3: production version, optimized for size and speed -->
+    <!-- <script src='https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.prod.js'></script> -->
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+
+</head>
+
+<body>
+
+    <header class="bg-dark py-5">
+        <div class='row mx-5' style="float: right;">
+            <a href='payment_client.html'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                    class="bi bi-cart-fill" viewBox="0 0 16 16" style="color: white;">
+                    <path
+                        d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                </svg>
+            </a>
+        </div>
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <a href='homepage.html' style='text-decoration: none; color: white;' @click='updateToCart()'>
+                    <h1 class="display-4 fw-bolder" style="font-family:'Courier New', Courier, monospace ">\KeebsForUs\
+                    </h1>
+                </a>
+                <p class="lead fw-normal text-white-50 mb-0">Keyboard</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navbar navbar-light bg-warning mb-2">
+        <!-- <a class="navbar-brand" href="#">
+            <div class = 'mx-5'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            </div>
+        </a> -->
+        <div class="mx-5 dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Item Type
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li><a class="dropdown-item" href="keyboard.html">Keyboard</a></li>
+                <li><a class="dropdown-item" href="keycap.html">KeyCaps</a></li>
+                <li><a class="dropdown-item" href="switch.html">Switches</a></li>
+            </ul>
+        </div>
+
+    </nav>
+
+
+    <div id="app" class="container-fluid">
+
+
+        <div id='keyboard'>
+            <h1 style="text-align: center; text-decoration: underline; font-family:'Courier New', Courier, monospace ;">
+                Keyboard</h1>
+            <div class="py-5">
+                <div class="container">
+                    <div class="row">
+                        <div v-for='keyboard in keyboards' class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-block">
+                                    <img class="card-img-top" :src="keyboard.photo_url" alt="Card image cap">
+                                    <h4 class="card-title" style='text-align: center;'>{{keyboard.itemName}}</h4>
+                                    <h6 class="card-subtitle text-muted" style='text-align: center;'>
+                                        \{{keyboard.category}}\</h6>
+                                    <p class="card-text p-y-1" style='text-align: center;'>
+                                        ${{keyboard.price}}
+                                    </p>
+                                    <div style="text-align:center" class='my-2'>
+                                        <button class="btn btn-primary" @click='addToCart(keyboard)'>Add To
+                                            Cart</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><br>
+            </div>
+        </div>
+
+        <div class='container'>
+            <!-- <button class='col btn btn-primary' @click='updateToCart'><a href="paypal_client.html"></a>Checkout</button> -->
+            <!-- <a href="paypal_client.html">Checkout</a> -->
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const get_all_URL = "http://localhost:5013/inventory";
+        // const update_cart = 'http://localhost:5014/cart/';
+        const get_cart_url = "http://localhost:5014/cart";
+
+
+
+        const app = Vue.createApp({
+            data() {
+                return {
+                    message: '',
+                    keyboards: [],
+                    switches: [],
+                    keycaps: [],
+                    top_3_keyboards: [],
+                    top_3_keycaps: [],
+                    top_3_switches: [],
+                    cart: '',
+                }
+            },
+            methods: {
+                getAll() {
+                    const response =
+                        fetch(get_all_URL)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.code === 400) {
+                                    this.message = data.message
+                                } else {
+                                    all_items = data.data['keyboards']
+                                    for (each_item of all_items) {
+                                        category = each_item.category
+                                        if (category == 'keyboard') {
+                                            this.keyboards.push(each_item)
+
+                                        } else if (category == 'switch') {
+                                            this.switches.push(each_item)
+
+                                        } else if (category == 'keycaps') {
+                                            this.keycaps.push(each_item)
+
+                                        }
+                                    }
+                                }
+                                //console.log(this.top_3_switches)
+                            })
+                },
+                getPreviousCartInfo() {
+                    const response =
+                        fetch(get_cart_url)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(response);
+                                if (data.code === 404) {
+                                    this.message = data.message;
+                                } else {
+                                    this.cart = data.data.accounts[0].items;
+                                    console.log(this.cart)
+                                }
+                            })
+                            .catch(error => {
+                                // Errors when calling the service; such as network error, 
+                                // service offline, etc
+                                console.log(this.message + error);
+
+                            });
+
+                },
+                addToCart(item) {
+                    let data = sessionStorage.getItem('cart');
+                    data_list = JSON.parse(data)
+
+                    count = 0
+                    for (each of data_list){
+                        if (each.itemName == item.itemName){
+                            each.quantity += 1
+                        }
+                        else{
+                            count += 1
+                        }
+                    }
+                    if(count == data_list.length){
+                        item.quantity = 1
+                        data_list.push(item)
+                    }
+
+                    console.log(data_list)
+
+                    // Save data to sessionStorage
+                    sessionStorage.setItem('cart', JSON.stringify(data_list));
+
+                    // Get saved data from sessionStorage
+                    let data_2 = sessionStorage.getItem('cart');
+                    console.log(data_2)
+
+                },
+                updateToCart() {
+                    // console.log(`http://localhost:5014/cart/${this.cart}`)
+                    const response =
+                        fetch(`http://localhost:5014/cart/${this.cart}`, {
+                            method: 'PUT',
+                            headers: {
+                            },
+                            // body: JSON.stringify({
+                            //     // data you intend to send as JSON to the server
+                            // })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                                result = data.data;
+                                console.log(result);
+
+                            })
+                }
+            },
+            created() {
+                this.getAll()
+                this.getPreviousCartInfo()
+            }
+        })
+        const vm = app.mount('#app');
+    </script>
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous">
+        </script>
+
+
+
+
+</body>
+
+</html>

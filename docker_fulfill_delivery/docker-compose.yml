@@ -1,0 +1,180 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+
+services:
+ 
+  ###################################
+  # Order: The Order microservice
+  ###################################
+  order:
+    build:
+      context: ./
+      dockerfile: order.Dockerfile
+    image: noxnyctores/order:esd
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/order
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5012:5012"
+
+  ###################################
+  #Accounts : The Account microservice
+  ###################################
+  # accounts:
+  #   build:
+  #     context: ./
+  #     dockerfile: accounts.Dockerfile
+  #   image: accounts:esd
+  #   restart: always 
+  #   environment:
+  #     dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/accounts
+  #     PYTHONUNBUFFERED: 1
+
+  ###################################
+  #payment : The payment microservice
+  ###################################
+  # payment:
+  #   build:
+  #     context: ./
+  #     dockerfile: payments.Dockerfile
+  #   image: payments:esd
+  #   restart: always 
+  #   environment:
+  #     dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/payments
+  #     PYTHONUNBUFFERED: 1
+  
+  ###################################
+  #inventory : The inventory microservice
+  ###################################
+  # inventory:
+  #   build:
+  #     context: ./
+  #     dockerfile: inventory.Dockerfile
+  #   image: inventory:esd
+  #   restart: always
+  #   environment: 
+  #     dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/inventory
+  #     PYTHONUNBUFFERED: 1
+
+  ###################################
+  #shipping_record : The shipping record microservice
+  ###################################
+  shipping_record:
+    build:
+      context: ./
+      dockerfile: shipping_record.Dockerfile
+    image: noxnyctores/shipping_record:1.0
+    restart: always
+    environment: 
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/shipping_record
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5010:5010"
+
+  ###################################
+  #RabbitMQ: The messaging broker
+  ###################################
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: esd-rabbit
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes: 
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  ###################################
+  #sms: The sms microservice
+  ###################################
+  sms:
+    build:
+      context: ./
+      dockerfile: sms.Dockerfile
+    image: noxnyctores/sms:1.0
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  ###################################
+  #Fulfil_delivery: The fulfil delivery Complex Service
+  ###################################
+  fulfill_delivery:
+    build:
+      context: ./
+      dockerfile: fulfill_delivery.Dockerfile
+    image: noxnyctores/fulfill_delivery:1.0
+    restart: always
+    depends_on:
+      - order
+      - shipping_record
+      - sms
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      order_URL: http://order:5012/order
+      shipping_record_URL: http://shipping_record:5010/shippingrecord
+      # http://(service name):5010/(route)
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5100:5100"
+
+
+
+  ###################################
+  #Order Refund: Refund Order microservice
+  ###################################
+  # orderRefund:
+  #   build:
+  #     context: ./
+  #     dockerfile: orderRefund.Dockerfile
+  #   image: orderRefund:esd
+  #   restart: always
+  #   environment: 
+  #     dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/orderRefund
+  #     PYTHONUNBUFFERED: 1
+
+  ###################################
+  #Place An Order : Place Order Complex Service
+  ###################################
+  # place_an_order:
+  #   build:
+  #     context: ./
+  #     dockerfile: place_an_order.Dockerfile
+  #   image: place_an_order:esd
+  #   restart: always
+  #   depends_on:
+  #     - payment
+  #     - order
+  #     - shipping_record
+  #     - inventory
+  #   environment:
+  #     payment_URL : http://localhost:5030/payment
+  #     order_URL : http://localhost:5012/order
+  #     shipping_record_URL: http://localhost:5019/shipping_record
+  #     inventory_URL : http://localhost:5013/inventory
+  #     PYTHONUNBUFFERED: 1
+  #   ports:
+  #     - "5100:5100"
+  
+
+  
+
+  
+
+
+
+
+
+
+  
+ 
+
